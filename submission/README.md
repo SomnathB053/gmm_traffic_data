@@ -31,6 +31,6 @@ root/
     - Setup the environment as previously stated.
     - Run `python <file_name>.py` on the terminal/command_prompt/powershell individually.
 
-The output is both as text on the terminal and as matplotlib figures.
+The output is displayed on the terminal and as matplotlib figures.
 
 
