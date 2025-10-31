@@ -75,7 +75,7 @@ def display_results(mix:np.ndarray, mu:np.ndarray, sigma:np.ndarray, labels:np.n
     ax1.set_title("GMM Clusters on First Two PCA Components")
     ax1.grid(True)
 
-    fig2, ax2 = plt.subplots(1, 3, figsize=(12, 6))
+    fig2, ax2 = plt.subplots(1, 3, figsize=(12, 5))
 
     for i in range(sigma.shape[0]):
         sns.heatmap(sigma[i,:,:], ax = ax2[i], cmap="Spectral", square=True, linewidth=0.5)
