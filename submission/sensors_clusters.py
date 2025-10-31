@@ -17,7 +17,7 @@ def get_pems_dataset():
     return pems_data['data']
 
 def parse_pems_dataset(pems_data: np.ndarray):
-    speed, occupancy, flow = pems_data[:,:,0], pems_data[:,:,1], pems_data[:,:,2]
+    flow, occupancy, speed = pems_data[:,:,0], pems_data[:,:,1], pems_data[:,:,2]
     sensor_df_all = [] # store all dfs of each sensor separately
     for i in range(pems_data.shape[1]):
         df = pd.DataFrame({
@@ -32,11 +32,11 @@ def parse_pems_dataset(pems_data: np.ndarray):
     data["dt_mins"] = pd.to_timedelta(data['time_step']*5, unit = "m")
     data['day'] = (data['dt_mins'].dt.days).astype(int)
     data["hour"] = (data["dt_mins"].dt.components.hours).astype(int)
-    data_hourly = data.groupby(["sid", "day", "hour"], as_index= False)[['speed', 'flow', 'occupancy']].mean()
+    data_hourly = data.groupby(["sid", "day", "hour"], as_index= False)[["flow", "occupancy", "speed"]].mean()
     data_hourly['weekday'] = data_hourly['day'] % 7 # day of week, number coded
-    data_weekday = data_hourly.groupby(["sid", "weekday", "hour"], as_index= False)[["speed", "flow", "occupancy"]].mean()
+    data_weekday = data_hourly.groupby(["sid", "weekday", "hour"], as_index= False)[['flow', 'occupancy', 'speed']].mean()
     # pivot data to bring all features on a single sensor in 1 row
-    data_weekly_tl = data_weekday.pivot(index="sid", columns = ["weekday", "hour"], values=["speed", "flow", "occupancy"])
+    data_weekly_tl = data_weekday.pivot(index="sid", columns = ["weekday", "hour"], values=['flow', 'occupancy', 'speed'])
     data_weekly_tl.columns = [f"{f}_wd{w}_hr{h}" for f,w,h in data_weekly_tl.columns]
     data_weekly_tl.reset_index(inplace=True)
     print(f"\t- Dataframe shape: {data_weekly_tl.shape}")
