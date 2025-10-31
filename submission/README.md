@@ -13,6 +13,20 @@ root/
     ├── PEMS08.npz
     └── PEMS04.npz
 
+## File description
+- PEMS08.npz: Dataset used in `sensor_clusters` approach.
+- PEMS04.npz: Dataset used in `single_sensor_traffic_cluster` approach.
+- requirements.txt: Lists all python requirements to be installed to run the programs.
+- sensor_clusters.py: Python script file to run the entire Approach 1 pipeline end to end.
+- sensors_clusters.ipynb: Jupyter notebook version for `sensor_clusters` for easy viewing.
+- single_sensor_traffic_cluster.py: Python script file to run the entire Approach 2 pipeline end to end.
+- single_sensor_traffic_cluster.ipynb: Jupyter notebook version for `single_sensor_traffic_cluster` for easy viewing.
+- report.pdf: Final report summarizing project work.
+
+Disclaimer: In the case the datasets are missing they can be downloaded from the following links and placed in the root project folder:
+- [PEMS08](https://zenodo.org/records/7816008/files/PEMS08.npz?download=1)
+- [PEMS04](https://zenodo.org/records/7816008/files/PEMS04.npz?download=1)
+
 ## How to run
 
 * Setup the environment
@@ -23,11 +37,10 @@ root/
         -  `.\.venv\Scripts\Activate.PS1` on Windows PowerShell.
     - Install required packages as `pip install -r requirements.txt`
 * Files
-    We have implemented two separate approaches to cluster the datasets, same provided as notebooks and scripts.
+    We have implemented two approaches, spatial and temporal, to cluster the datasets, each provided as notebook and script format separately.
     - `sensors_clusters.ipynb` (Notebook) or `sensors_clusters.py` (Script) on Dataset `PEMSD08`
     - `single_sensor_traffic_cluster.ipynb` (Notebook) or `single_sensor_traffic_cluster.py` (Script) on Dataset `PEMSD04`
-
-* To run the python scripts:
+* To run the python scripts (to parse data, run model and display output):
     - Setup the environment as previously stated.
     - Run `python <file_name>.py` on the terminal/command_prompt/powershell individually.
 

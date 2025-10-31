@@ -56,18 +56,18 @@ def get_pca_features(X:np.ndarray):
     X_pca = pca.fit_transform(X)
     return X_pca
 
-def calculate_clusters(X_pca: np.ndarray):
-    mix, mu, sigma, resp, ll = gmm(X_pca, max_iter=100, n_clusters=3, init_method="random", seed= 42)
+def calculate_clusters(X_pca: np.ndarray, n_c: int):
+    mix, mu, sigma, resp, ll = gmm(X_pca, max_iter=100, n_clusters=n_c, init_method="random", seed= 42)
     labels = np.argmax(resp, axis=1)
     print(f"\t- Final log likelihood: {float(ll[-1])}")
     return mix, mu, sigma, labels
     
 def display_results(mix:np.ndarray, mu:np.ndarray, sigma:np.ndarray, labels:np.ndarray, X_pca: np.ndarray):
-    print("Results:\n--------------------\n")
+    print("Results:\n--------------------")
     print(f"Cluster assignment as # of points:\n{pd.Series(labels).value_counts(ascending = True)}")
 
     print(f"\nMixing coefficients:\n{'  |   '.join([f'Cluster {i} -> {round(mix[i],3)}' for i in range(len(mix))])}")
-    fig1, ax1 = plt.subplots()
+    fig1, ax1 = plt.subplots(figsize=(8,8))
     sns.scatterplot(data = pd.DataFrame(X_pca[:, :2]), x= 0, y =1, hue = labels, palette="bright", s= 50, alpha=0.75, ax=ax1)
     ax1.scatter(mu[:,0], mu[:,1], color=["cyan", "magenta","yellow"], s=120, edgecolor='k', marker="o", label="Cluster Means")
     ax1.set_xlabel("PCA 1")
@@ -75,14 +75,38 @@ def display_results(mix:np.ndarray, mu:np.ndarray, sigma:np.ndarray, labels:np.n
     ax1.set_title("GMM Clusters on First Two PCA Components")
     ax1.grid(True)
 
-    fig2, ax2 = plt.subplots(1, 3, figsize=(18, 6))
+    fig2, ax2 = plt.subplots(1, 3, figsize=(12, 6))
 
     for i in range(sigma.shape[0]):
         sns.heatmap(sigma[i,:,:], ax = ax2[i], cmap="Spectral", square=True, linewidth=0.5)
         ax2[i].set_title(f"Covariance matrix for cluster {i+1}", fontsize= 12)
         ax2[i].tick_params(axis='both',
          which='major', labelsize=6)
+        
+    data_weekly_tl['cluster'] = labels
+    feature_groups = ['flow', 'speed', 'occupancy']
+
+    fig3, ax3 = plt.subplots(3, 1, figsize=(15, 8))
+
+    for i in range(len(feature_groups)):
+        feature = feature_groups[i]
+        ax = ax3[i]
+        
+        cols = [c for c in data_weekly_tl.columns if c.startswith(feature)]
+        cluster_means = data_weekly_tl.groupby('cluster')[cols].mean()
+
+        cluster_means.columns = np.arange(len(cols))
+        
+        for cluster_id, row in cluster_means.iterrows():
+            ax.plot(row.index, row.values, label=f'Cluster {cluster_id}')
+        
+        ax.set_title(f'Cluster-wise Mean {feature.capitalize()} Profile')
+        ax.set_xlabel('Hours since start')
+        ax.set_ylabel(feature)
+        ax.grid(True)
+        ax.legend()
     
+    plt.tight_layout()
     plt.show()
 
 def gmm(X: np.ndarray, max_iter: int, n_clusters: int, init_method: typing.Literal["kmeans", "random"] = "random", seed: int = 42):
@@ -136,5 +160,5 @@ if __name__ == "__main__":
     print(">> Reducing data dimentions | steps done: 4/5")
     X_pca = get_pca_features(X)
     print(">> Calculating clusters | steps done: 5/5")
-    mix, mu, sigma, labels = calculate_clusters(X_pca)
+    mix, mu, sigma, labels = calculate_clusters(X_pca,3)
     display_results(mix, mu, sigma, labels, X_pca)

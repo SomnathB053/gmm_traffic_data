@@ -42,19 +42,19 @@ def get_clean_features(data_weekly_tl: pd.DataFrame):
 
 
 
-def calculate_clusters(X: np.ndarray):
-    mix, mu, sigma, resp, ll = gmm(X, max_iter=200, n_clusters=2, init_method="random", seed= 42)
+def calculate_clusters(X: np.ndarray, n_c: int):
+    mix, mu, sigma, resp, ll = gmm(X, max_iter=200, n_clusters=n_c, init_method="random", seed= 42)
     labels = np.argmax(resp, axis=1)
     print(f"\t- Final log likelihood: {float(ll[-1])}")
     return mix, mu, sigma, labels
     
 def display_results(mix:np.ndarray, mu:np.ndarray, sigma:np.ndarray, labels:np.ndarray, X: np.ndarray):
-    print("Results:\n--------------------\n")
+    print("Results:\n--------------------")
     print(f"Cluster assignment as # of points:\n{pd.Series(labels).value_counts(ascending = True)}")
 
     print(f"\nMixing coefficients:\n{'  |   '.join([f'Cluster {i} -> {round(mix[i],3)}' for i in range(len(mix))])}")
 
-    fig1, ax1 = plt.subplots(1, 3, figsize=(18, 5))
+    fig1, ax1 = plt.subplots(1, 3, figsize=(16, 5))
     colors = ["cyan", "magenta","yellow"][:2]
     sns.scatterplot(data = pd.DataFrame(X), x= 1, y =0, hue = labels, palette="bright", s= 20, alpha=0.75, ax = ax1[0])
     ax1[0].scatter(mu[:,1], mu[:,0], color=colors, s=120, edgecolor='k', marker="o", label="Cluster Means")
@@ -81,7 +81,7 @@ def display_results(mix:np.ndarray, mu:np.ndarray, sigma:np.ndarray, labels:np.n
 
 
 
-    fig2, ax2 = plt.subplots(1, sigma.shape[0], figsize=(15, 6))
+    fig2, ax2 = plt.subplots(1, sigma.shape[0], figsize=(12, 5))
 
     for i in range(sigma.shape[0]):
         sns.heatmap(sigma[i,:,:], ax = ax2[i], cmap="viridis", square=True, linewidth=0.5)
@@ -140,5 +140,5 @@ if __name__ == "__main__":
     print(">> Preprocessing data | steps done: 3/4")
     X = get_clean_features(data_hourly)
     print(">> Calculating clusters | steps done: 4/4")
-    mix, mu, sigma, labels = calculate_clusters(X)
+    mix, mu, sigma, labels = calculate_clusters(X, 2)
     display_results(mix, mu, sigma, labels, X)
