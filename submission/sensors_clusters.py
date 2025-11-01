@@ -10,7 +10,7 @@ import seaborn as sns
 
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
-
+from sklearn.metrics import silhouette_score
 def get_pems_dataset():
     pems_data = np.load("PEMS08.npz")  
     print(f"\t- Data shape: {pems_data['data'].shape}") 
@@ -56,8 +56,26 @@ def get_pca_features(X:np.ndarray):
     X_pca = pca.fit_transform(X)
     return X_pca
 
-def calculate_clusters(X_pca: np.ndarray, n_c: int):
-    mix, mu, sigma, resp, ll = gmm(X_pca, max_iter=100, n_clusters=n_c, init_method="random", seed= 42)
+def calculate_clusters(X_pca: np.ndarray):
+    k_values = range(2, 11)
+    silhouette_scores = []
+    for k in k_values:
+        mix, mu, sigma, resp, ll = gmm(X_pca, max_iter=200, n_clusters=k, init_method="random", seed=42)
+        labels = np.argmax(resp, axis=1)
+        sil_score = silhouette_score(X, labels)
+        silhouette_scores.append(sil_score)
+    _, axtest = plt.subplots(figsize=(8, 5))
+    color = 'blue'
+    axtest.set_ylabel('Silhouette Score', color=color)
+    axtest.plot(k_values, silhouette_scores, marker='s', color=color, label='Silhouette Score')
+    axtest.tick_params(axis='y', labelcolor=color)
+    axtest.legend(loc='upper right')
+    axtest.set_title("GMM Cluster Evaluation: Log-Likelihood vs Silhouette Score")
+    axtest.grid()
+    
+    print(f"Max silhouette score reached for k = {np.argmax(silhouette_scores) + 2}")
+
+    mix, mu, sigma, resp, ll = gmm(X_pca, max_iter=200, n_clusters=(np.argmax(silhouette_scores)+2), init_method="random", seed= 42)
     labels = np.argmax(resp, axis=1)
     print(f"\t- Final log likelihood: {float(ll[-1])}")
     return mix, mu, sigma, labels
@@ -75,7 +93,7 @@ def display_results(mix:np.ndarray, mu:np.ndarray, sigma:np.ndarray, labels:np.n
     ax1.set_title("GMM Clusters on First Two PCA Components")
     ax1.grid(True)
 
-    fig2, ax2 = plt.subplots(1, 3, figsize=(12, 5))
+    fig2, ax2 = plt.subplots(1, 3, figsize=(16, 5))
 
     for i in range(sigma.shape[0]):
         sns.heatmap(sigma[i,:,:], ax = ax2[i], cmap="Spectral", square=True, linewidth=0.5)
@@ -143,7 +161,6 @@ def gmm(X: np.ndarray, max_iter: int, n_clusters: int, init_method: typing.Liter
         curr_log_likelihood = log_resp_norm.sum()
         lls.append(curr_log_likelihood)
         if np.abs(curr_log_likelihood - prev_ll) < tol: # check if not sufficient improvement in curr iter
-            print(f"Termination criteria reached")
             break
         prev_ll = curr_log_likelihood
     return c_pi, c_mu, c_sigma, resp, lls
@@ -160,5 +177,5 @@ if __name__ == "__main__":
     print(">> Reducing data dimentions | steps done: 4/5")
     X_pca = get_pca_features(X)
     print(">> Calculating clusters | steps done: 5/5")
-    mix, mu, sigma, labels = calculate_clusters(X_pca,3)
+    mix, mu, sigma, labels = calculate_clusters(X_pca)
     display_results(mix, mu, sigma, labels, X_pca)

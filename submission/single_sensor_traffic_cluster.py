@@ -8,8 +8,8 @@ from scipy.special import logsumexp
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
 
 def get_pems_dataset():
     pems_data = np.load("PEMS04.npz")  
@@ -42,8 +42,25 @@ def get_clean_features(data_weekly_tl: pd.DataFrame):
 
 
 
-def calculate_clusters(X: np.ndarray, n_c: int):
-    mix, mu, sigma, resp, ll = gmm(X, max_iter=200, n_clusters=n_c, init_method="random", seed= 42)
+def calculate_clusters(X: np.ndarray):
+    k_values = range(2, 11)
+    silhouette_scores = []
+    for k in k_values:
+        mix, mu, sigma, resp, ll = gmm(X, max_iter=200, n_clusters=k, init_method="random", seed=42)
+        labels = np.argmax(resp, axis=1)
+        sil_score = silhouette_score(X, labels)
+        silhouette_scores.append(sil_score)
+    _, axtest = plt.subplots(figsize=(8, 5))
+    color = 'blue'
+    axtest.set_ylabel('Silhouette Score', color=color)
+    axtest.plot(k_values, silhouette_scores, marker='s', color=color, label='Silhouette Score')
+    axtest.tick_params(axis='y', labelcolor=color)
+    axtest.legend(loc='upper right')
+    axtest.set_title("GMM Cluster Evaluation: Log-Likelihood vs Silhouette Score")
+    axtest.grid()
+    print(f"Max silhouette score reached for k = {np.argmax(silhouette_scores) + 2}")
+
+    mix, mu, sigma, resp, ll = gmm(X, max_iter=200, n_clusters=(np.argmax(silhouette_scores)+2), init_method="random", seed= 42)
     labels = np.argmax(resp, axis=1)
     print(f"\t- Final log likelihood: {float(ll[-1])}")
     return mix, mu, sigma, labels
@@ -125,7 +142,6 @@ def gmm(X: np.ndarray, max_iter: int, n_clusters: int, init_method: typing.Liter
         curr_log_likelihood = log_resp_norm.sum()
         lls.append(curr_log_likelihood)
         if np.abs(curr_log_likelihood - prev_ll) < tol: # check if not sufficient improvement in curr iter
-            print(f"Termination criteria reached")
             break
         prev_ll = curr_log_likelihood
     return c_pi, c_mu, c_sigma, resp, lls
@@ -140,5 +156,5 @@ if __name__ == "__main__":
     print(">> Preprocessing data | steps done: 3/4")
     X = get_clean_features(data_hourly)
     print(">> Calculating clusters | steps done: 4/4")
-    mix, mu, sigma, labels = calculate_clusters(X, 2)
+    mix, mu, sigma, labels = calculate_clusters(X)
     display_results(mix, mu, sigma, labels, X)

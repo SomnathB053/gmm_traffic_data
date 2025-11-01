@@ -1,4 +1,5 @@
 # Clustering Large Datasets with Gaussian Mixture Models for Traffic Analysis
+# Submitted by Group 24
 
 ## File structure
 root/
