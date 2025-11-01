@@ -35,7 +35,7 @@ Disclaimer: In the case the datasets are missing they can be downloaded from the
     - In the root folder, create a virtual environment. Open the command-line/terminal in root and run `python -m venv .venv` or `python3 -m venv .venv`.
     - Source the virtual environment using 
         - `. .venv/bin/activate` on Linux
-        -  `.\.venv\Scripts\Activate.PS1` on Windows PowerShell.
+        -  `.\.venv\Scripts\activate` on Windows PowerShell.
         If you encounter an error regarding permissions. Try to run `.\.Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`
     - Install required packages as `pip install -r requirements.txt`
 * Files
