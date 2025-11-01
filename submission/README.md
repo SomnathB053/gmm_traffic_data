@@ -36,6 +36,7 @@ Disclaimer: In the case the datasets are missing they can be downloaded from the
     - Source the virtual environment using 
         - `. .venv/bin/activate` on Linux
         -  `.\.venv\Scripts\Activate.PS1` on Windows PowerShell.
+        If you encounter an error regarding permissions. Try to run `.\.Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`
     - Install required packages as `pip install -r requirements.txt`
 * Files
     We have implemented two approaches, spatial and temporal, to cluster the datasets, each provided as notebook and script format separately.
@@ -44,6 +45,8 @@ Disclaimer: In the case the datasets are missing they can be downloaded from the
 * To run the python scripts (to parse data, run model and display output):
     - Setup the environment as previously stated.
     - Run `python <file_name>.py` on the terminal/command_prompt/powershell individually.
+
+(To run the notebooks you need to install jupyter notebook from [here](https://jupyter.org/install))
 
 The output is displayed on the terminal and as matplotlib figures.
 

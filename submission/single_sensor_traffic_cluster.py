@@ -31,7 +31,7 @@ def parse_pems_dataset(pems_data: np.ndarray):
     data = sensor_df_all[0]
     data["dt_mins"] = pd.to_timedelta(data['time_step']*5, unit = "m")
     data["hour"] = (data["dt_mins"].dt.total_seconds() // 3600).astype(int)
-    data_hourly = data.groupby(["sid", "hour"], as_index= False)[['flow', 'occupancy', 'speed']].mean()
+    data_hourly = data.groupby(["sid", "hour"], as_index= False)[['speed', 'occupancy', 'flow']].mean()
     return data_hourly
 
 def get_clean_features(data_weekly_tl: pd.DataFrame):
