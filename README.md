@@ -1,5 +1,5 @@
 # Clustering Large Datasets with Gaussian Mixture Models for Traffic Analysis
-# Submitted by Group 24
+# Submitted by Group 24 for CSL7620 project, IIT Jodhpur
 
 ## File structure
 root/
